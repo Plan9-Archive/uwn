@@ -1,0 +1,37 @@
+UNIX WEENIE NEWS
+
+Tired of everything integrating nicely with acme?  Tired of plumbing,
+snarfing, and pasting?  Do you want to live on the cutting edge of
+1995's user interfaces?
+
+Introducing Unix Weenie News, "the newsreader with all of the memory
+leaks and none of the features"™
+
+
+Installation:
+mk local # to install to your $home/bin/386 directory
+mk install # installs to /386/bin (for sadists only)
+
+Use:
+You must start nntpfs before running UWN, which expects /mnt/news to
+exist.
+
+'uwnread' is the news reading client; with no arguments, it opens
+comp.os.plan9.  It takes a single, standard form newsgroup as its
+argument.  It's not threaded yet. Initially, to save time, the
+reader only fetches the 10 most recent message headers. Clicking
+"More Headers" will fetch more. "Re-read Group" will check the
+group for any new messages that have arrived.
+
+'uwnwrite' is for writing posts.  At this time, it doesn't know about
+replying to messages, so everything you post will be its own beautiful
+and unique snowfl^H^H^H^H^H^Hthread.  You can post to multiple groups
+by entering them, separated by commands, in the "Newsgroups:" field.
+The "From:" field needs a standard form "Name <user@domain.tld>".
+
+
+This software is distributed under the MIT public license.
+
+John Floren, 2009
+john@csplan9.rit.edu
+
