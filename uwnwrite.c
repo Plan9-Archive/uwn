@@ -22,7 +22,8 @@ struct Article {
 };
 
 Panel *root, *entry, *from, *subject, *newsgroups, *references, *msg;
-
+Rune *snarfbuf;
+int nsnarfbuf;
 Article article;
 
 void 
@@ -207,6 +208,43 @@ readarticle(char *p) {
 	}
 }
 
+void
+snarf(void)
+{
+	int s0, s1;
+	Rune *text;
+	plegetsel(entry, &s0, &s1);
+	if (s0 == s1)
+		return;
+	text = pleget(entry);
+	if (snarfbuf)
+		free(snarfbuf);
+	nsnarfbuf = s1 - s0;
+	snarfbuf=malloc(nsnarfbuf*sizeof(Rune));
+	memmove(snarfbuf, text+s0, nsnarfbuf*sizeof(Rune));
+}
+
+/* this is stupid, yeah */
+void
+dosnarf(Panel *, int)
+{
+	snarf();
+}
+
+void
+cut(Panel *, int)
+{
+	snarf();
+	plepaste(entry, 0, 0);
+}
+
+void
+paste(Panel *, int)
+{
+	plepaste(entry, snarfbuf, nsnarfbuf);
+}
+	
+
 void 
 main(int argc, char *argv[]) {
 	Event e;
@@ -249,8 +287,6 @@ main(int argc, char *argv[]) {
 		readarticle(path);
 
 		inittxt = runesmprint("%s", article.btext);
-//		inittxt = L"012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567891234";
-//		print("%d runes, %.*S", runestrlen(inittxt), runestrlen(inittxt), inittxt);
 	}
 
 	if (makenew)
@@ -276,9 +312,12 @@ main(int argc, char *argv[]) {
 		p = plgroup(root, PACKN|FILLX);
 			pllabel(p, PACKW|FILLX, "References:");
 			references = plentry(p, PACKW, 300, ref, 0);
+		p = plgroup(root, PACKN|FILLX);
+			plbutton(p, PACKW, "Cut", cut);
+			plbutton(p, PACKW, "Snarf", dosnarf);
+			plbutton(p, PACKW, "Paste", paste);
 		p = plgroup(root, PACKN|EXPAND);
 			entry = pledit(p, PACKE|EXPAND, Pt(0,0), inittxt, runestrlen(inittxt), plgrabkb);
-//			entry = pledit(p, PACKE|EXPAND, Pt(0,0), 0, 0, plgrabkb);
 			s = plscrollbar(p, PACKW|FILLY);
 			plscroll(entry, 0, s);
 		p = plgroup(root, PACKN|FILLX);
@@ -288,7 +327,6 @@ main(int argc, char *argv[]) {
 	plgrabkb(newsgroups);
 
 	eresized(0);
-//	plinitedit(entry, PACKE|EXPAND, Pt(0,0), inittxt, runestrlen(inittxt), plgrabkb);
 
 	for (;;) {
 		switch(event(&e)){
