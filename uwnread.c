@@ -21,9 +21,9 @@ struct Article {
 	char *filename;
 };
 
-const int INITREAD = 10;
+int INITREAD = 10;
 const int MORE = 10;
-const int LISTLEN = 15;
+int LISTLEN = 15;
 
 Biobuf *bin;
 
@@ -284,17 +284,24 @@ main(int argc, char *argv[]) {
 	Panel *l, *s, *p;
 	char *gname, *fpath;
 
-	if (argc == 1) {
-		group = "comp.os.plan9";
-		gname = "comp/os/plan9";
-	} else if (argc == 2) {
-		argv++;
-		group = argv[0];
-		gname = convgroup(group);
-	} else {
-		fprint(2, "Usage: %s group\n", argv[0]);
-		exits("usage");
-	}
+	group = "comp.os.plan9";
+	gname = "comp/os/plan9";
+
+	ARGBEGIN {
+		case 'g':
+			group = ARGF();
+			gname = convgroup(group);
+			break;
+		case 'l':
+			LISTLEN = atoi(ARGF());
+			break;
+		case 'r':
+			INITREAD = atoi(ARGF());
+			break;
+		default:
+			fprint(2, "Usage: %s [-g group] [-l length] [-r #articles]\n", argv[0]);
+			exits("usage");
+	} ARGEND
 
 	path = smprint("/mnt/news/%s/", gname);
 
